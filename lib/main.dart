@@ -23,7 +23,7 @@ class ExpensesApp extends StatelessWidget {
           backgroundColor: Colors.amber,
         ),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.purple,
+          backgroundColor:Color(0xFFa9f04d),
         ),
       ),
     );
@@ -81,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Despesas Pessoais'),
+        title: const Text('Good Helpers'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
