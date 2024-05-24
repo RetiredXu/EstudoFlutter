@@ -63,10 +63,10 @@ class _MyHomePageState extends State<MyHomePage> {
     }).toList();
   }
 
-  _addTransaction(String title, double phone, DateTime date, String situation) {
+  _addTransaction(String name, double phone, DateTime date, String situation) {
     final newTransaction = Transaction(
       id: Random().nextDouble().toString(),
-      title: title,
+      name: name,
       phone: phone,
       date: date,
       situation: situation,
@@ -133,6 +133,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 height: availableHeight * 0.70,
                 child: TransactionList(_transactions, _removeTransaction),
               ),
+            const SizedBox(height: 100), // Espaçamento entre a lista e o texto
+            const Text(
+              'Precisando de ajuda? cadastre aqui',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
       ),
