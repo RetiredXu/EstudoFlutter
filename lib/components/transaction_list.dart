@@ -56,7 +56,7 @@ class TransactionList extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Número de Contato: ${tr.value.toStringAsFixed(0)}', // Convertendo para String
+                        'Número de Contato: ${tr.phone.toStringAsFixed(0)}', // Convertendo para String
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const Divider( // Adicionando a linha de divisão

@@ -63,11 +63,11 @@ class _MyHomePageState extends State<MyHomePage> {
     }).toList();
   }
 
-  _addTransaction(String title, double value, DateTime date, String situation) {
+  _addTransaction(String title, double phone, DateTime date, String situation) {
     final newTransaction = Transaction(
       id: Random().nextDouble().toString(),
       title: title,
-      value: value,
+      phone: phone,
       date: date,
       situation: situation,
     );

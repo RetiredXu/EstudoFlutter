@@ -12,20 +12,20 @@ class TransactionForm extends StatefulWidget {
 
 class _TransactionFormState extends State<TransactionForm> {
   final _nameController = TextEditingController();
-  final _fonnumberController = TextEditingController();
+  final _phonenumberController = TextEditingController();
   final _situationController = TextEditingController();
   DateTime? _selectedDate = DateTime.now();
 
   _submitForm() {
     final name = _nameController.text;
-    final fon = double.tryParse(_fonnumberController.text) ?? 0;
+    final phone = double.tryParse(_phonenumberController.text) ?? 0;
     final situacao = _situationController.text;
 
-    if (name.isEmpty || fon <= 0 || _selectedDate == null) {
+    if (name.isEmpty || phone <= 0 || _selectedDate == null) {
       return;
     }
 
-    widget.onSubmit(name, fon, _selectedDate!, situacao);
+    widget.onSubmit(name, phone, _selectedDate!, situacao);
   }
 
   _showDatePicker() {
@@ -60,7 +60,7 @@ class _TransactionFormState extends State<TransactionForm> {
               ),
             ),
             TextField(
-              controller: _fonnumberController,
+              controller: _phonenumberController,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               onSubmitted: (_) => _submitForm(),
               decoration: const InputDecoration(
