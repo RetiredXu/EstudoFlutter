@@ -1,28 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class TransactionForm extends StatefulWidget {
-  final void Function(String, double) onSubmit;
+  final void Function(String, double, DateTime, String) onSubmit;
 
-  const TransactionForm(this.onSubmit, {super.key});
+  const TransactionForm(this.onSubmit, {Key? key}) : super(key: key);
 
   @override
   State<TransactionForm> createState() => _TransactionFormState();
 }
 
 class _TransactionFormState extends State<TransactionForm> {
-  final titleController = TextEditingController();
-
-  final valueController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _fonnumberController = TextEditingController();
+  final _situationController = TextEditingController();
+  DateTime? _selectedDate = DateTime.now();
 
   _submitForm() {
-    final title = titleController.text;
-    final value = double.tryParse(valueController.text) ?? 0.0;
+    final name = _nameController.text;
+    final fon = double.tryParse(_fonnumberController.text) ?? 0;
+    final situacao = _situationController.text;
 
-    if (title.isEmpty || value <= 0) {
+    if (name.isEmpty || fon <= 0 || _selectedDate == null) {
       return;
     }
-    
-    widget.onSubmit(title, value);
+
+    widget.onSubmit(name, fon, _selectedDate!, situacao);
+  }
+
+  _showDatePicker() {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2019),
+      lastDate: DateTime.now(),
+    ).then((pickedDate) {
+      if (pickedDate == null) {
+        return;
+      }
+      setState(() {
+        _selectedDate = pickedDate;
+      });
+    });
   }
 
   @override
@@ -32,37 +51,66 @@ class _TransactionFormState extends State<TransactionForm> {
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: Column(
-          children: <Widget>[
+          children: [
             TextField(
-              controller: titleController,
-              decoration: const InputDecoration(
-                labelText: 'Título',
-              ),
+              controller: _nameController,
               onSubmitted: (_) => _submitForm(),
+              decoration: const InputDecoration(
+                labelText: 'Nome',
+              ),
             ),
             TextField(
-              controller: valueController,
-              keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
+              controller: _fonnumberController,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              onSubmitted: (_) => _submitForm(),
               decoration: const InputDecoration(
-                labelText: 'Valor (R\$)',
+                labelText: 'Telefone',
               ),
-              onSubmitted: (_) => _submitForm(),// para que o enter do teclado funcione 
+            ),
+            TextField(
+              controller: _situationController,
+              onSubmitted: (_) => _submitForm(),
+              decoration: const InputDecoration(
+                labelText: 'Situação',
+              ),
+            ),
+            SizedBox(
+              height: 70,
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Text(
+                      _selectedDate == null
+                          ? 'Nenhuma data selecionada!'
+                          : 'Data Selecionada: ${DateFormat('dd/MM/y').format(_selectedDate!)}',
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: _showDatePicker,
+                    child: const Text(
+                      'Selecionar Data',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                TextButton(
+                ElevatedButton(
                   onPressed: _submitForm,
-                  child: const Text(
+                  child: Text(
                     'Nova Transação',
                     style: TextStyle(
-                      color: Colors.purple,
+                      color: Theme.of(context).textTheme.labelLarge?.color,
                     ),
                   ),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),

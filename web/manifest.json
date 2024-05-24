@@ -1,6 +1,6 @@
 {
-    "name": "goodhelpers",
-    "short_name": "goodhelpers",
+    "name": "expenses",
+    "short_name": "expenses",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
