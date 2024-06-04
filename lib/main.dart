@@ -5,6 +5,7 @@ import 'package:goodhelpers/components/transaction_form.dart';
 import 'components/transaction_list.dart';
 import 'models/transaction.dart';
 import 'components/main_drawer.dart';
+import 'utils/app.routes.dart';
 
 main() => runApp(ExpensesApp());
 
@@ -31,6 +32,9 @@ class ExpensesApp extends StatelessWidget {
               ),
             ),
       ),
+      initialRoute: AppRoutes.HOME,
+      routes: {
+      },
     );
   }
 }
