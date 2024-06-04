@@ -1,10 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:image_picker/image_picker.dart';
 
 class TransactionForm extends StatefulWidget {
-  final void Function(String, double, DateTime, String) onSubmit;
+  final void Function(String, double, DateTime, String, File?) onSubmit;
 
-  const TransactionForm(this.onSubmit, {Key? key}) : super(key: key);
+  const TransactionForm(this.onSubmit, {super.key});
 
   @override
   State<TransactionForm> createState() => _TransactionFormState();
@@ -15,20 +18,29 @@ class _TransactionFormState extends State<TransactionForm> {
   final _phonenumberController = TextEditingController();
   final _situationController = TextEditingController();
   DateTime? _selectedDate = DateTime.now();
+  File? _selectedImage;
 
-  _submitForm() {
+  final _phoneNumberFormatter = MaskTextInputFormatter(mask: '(##) #####-####');
+
+  void _submitForm() {
     final name = _nameController.text;
-    final phone = double.tryParse(_phonenumberController.text) ?? 0;
+    final phone = _phonenumberController.text;
     final situacao = _situationController.text;
 
-    if (name.isEmpty || phone <= 0 || _selectedDate == null) {
+    if (name.isEmpty || phone.isEmpty || _selectedDate == null) {
       return;
     }
 
-    widget.onSubmit(name, phone, _selectedDate!, situacao);
+    widget.onSubmit(
+      name,
+      double.tryParse(phone.replaceAll(RegExp(r'\D'), '')) ?? 0,
+      _selectedDate!,
+      situacao,
+      _selectedImage,
+    );
   }
 
-  _showDatePicker() {
+  void _showDatePicker() {
     showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -44,74 +56,119 @@ class _TransactionFormState extends State<TransactionForm> {
     });
   }
 
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (pickedImage == null) {
+      return;
+    }
+
+    setState(() {
+      _selectedImage = File(pickedImage.path);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 5,
+       color: Colors.white,
+      elevation: 10,
       child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            TextField(
-              controller: _nameController,
-              onSubmitted: (_) => _submitForm(),
-              decoration: const InputDecoration(
-                labelText: 'Nome',
+        padding: EdgeInsets.only(
+            top: 10,
+            right: 10,
+            left: 10,
+            bottom: 10 + MediaQuery.of(context).viewInsets.bottom,
+          ),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              TextField(
+                controller: _nameController,
+                onSubmitted: (_) => _submitForm(),
+                decoration: const InputDecoration(
+                  labelText: 'Nome',
+                ),
               ),
-            ),
-            TextField(
-              controller: _phonenumberController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              onSubmitted: (_) => _submitForm(),
-              decoration: const InputDecoration(
-                labelText: 'Telefone',
+              TextField(
+                controller: _phonenumberController,
+                keyboardType: TextInputType.phone,
+                inputFormatters: [_phoneNumberFormatter],
+                onSubmitted: (_) => _submitForm(),
+                decoration: const InputDecoration(
+                  labelText: 'Telefone',
+                ),
               ),
-            ),
-            TextField(
-              controller: _situationController,
-              onSubmitted: (_) => _submitForm(),
-              decoration: const InputDecoration(
-                labelText: 'Situação',
+              TextField(
+                controller: _situationController,
+                onSubmitted: (_) => _submitForm(),
+                decoration: const InputDecoration(
+                  labelText: 'Situação',
+                ),
               ),
-            ),
-            SizedBox(
-              height: 70,
-              child: Row(
+              const SizedBox(height: 10),
+              Row(
                 children: <Widget>[
                   Expanded(
                     child: Text(
-                      _selectedDate == null
-                          ? 'Nenhuma data selecionada!'
-                          : 'Data Selecionada: ${DateFormat('dd/MM/y').format(_selectedDate!)}',
+                      _selectedImage == null
+                          ? 'Nenhuma imagem selecionada!'
+                          : 'Imagem Selecionada!',
                     ),
                   ),
                   TextButton(
-                    onPressed: _showDatePicker,
+                    onPressed: _pickImage,
                     child: const Text(
-                      'Selecionar Data',
+                      'Selecionar Imagem',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                ElevatedButton(
-                  onPressed: _submitForm,
-                  child: Text(
-                    'Nova Transação',
-                    style: TextStyle(
-                      color: Theme.of(context).textTheme.labelLarge?.color,
+              SizedBox(
+                height: 70,
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text(
+                        _selectedDate == null
+                            ? 'Nenhuma data selecionada!'
+                            : 'Data Selecionada: ${DateFormat('dd/MM/y').format(_selectedDate!)}',
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: _showDatePicker,
+                      child: const Text(
+                        'Selecionar Data',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  ElevatedButton(
+                    onPressed: _submitForm,
+                    child: Text(
+                      'Nova Transação',
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

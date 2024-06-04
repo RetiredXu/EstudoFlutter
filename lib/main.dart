@@ -1,8 +1,10 @@
+import 'dart:math';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:goodhelpers/components/transaction_form.dart';
-import 'dart:math';
 import 'components/transaction_list.dart';
 import 'models/transaction.dart';
+import 'components/main_drawer.dart';
 
 main() => runApp(ExpensesApp());
 
@@ -14,31 +16,20 @@ class ExpensesApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: const MyHomePage(),
-      theme: tema.copyWith(
-        colorScheme: tema.colorScheme.copyWith(
-          primary: Colors.purple,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          primary: Colors.pink,
           secondary: Colors.amber,
         ),
-        textTheme: tema.textTheme.copyWith(
-          titleLarge: const TextStyle(
-            fontFamily: 'OpenSans',
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-          labelLarge: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.purple,
-          titleTextStyle: TextStyle(
-            fontFamily: 'Sedan',
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        scaffoldBackgroundColor: const Color.fromRGBO(255, 254, 229, 1),
+        fontFamily: 'Raleway',
+        textTheme: ThemeData.light().textTheme.copyWith(
+              titleLarge: const TextStyle(
+                fontSize: 20,
+                fontFamily: 'RobotoCondensed',
+                fontWeight: FontWeight.bold
+              ),
+            ),
       ),
     );
   }
@@ -55,21 +46,15 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<Transaction> _transactions = [];
   bool _showChart = false;
 
-  List<Transaction> get _recentTransactions {
-    return _transactions.where((tr) {
-      return tr.date.isAfter(DateTime.now().subtract(
-        const Duration(days: 7),
-      ));
-    }).toList();
-  }
-
-  _addTransaction(String name, double phone, DateTime date, String situation) {
+  _addTransaction(
+      String name, double phone, DateTime date, String situation, File? image) {
     final newTransaction = Transaction(
       id: Random().nextDouble().toString(),
       name: name,
       phone: phone,
       date: date,
       situation: situation,
+      image: image,
     );
 
     setState(() {
@@ -100,6 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
         MediaQuery.of(context).orientation == Orientation.landscape;
 
     final appBar = AppBar(
+      backgroundColor: Theme.of(context).colorScheme.primary,
       title: const Text('Good Helper'),
       actions: [
         if (isLandscape)
@@ -124,32 +110,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: appBar,
+      drawer: MainDrawer(),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             if (!_showChart || !isLandscape)
               SizedBox(
-                height: availableHeight * 0.70,
+                height: availableHeight,
                 child: TransactionList(_transactions, _removeTransaction),
               ),
-            const SizedBox(height: 100), // Espaçamento entre a lista e o texto
-            const Text(
-              'Precisando de ajuda? cadastre aqui',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () => _openTransactionFormModal(context),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

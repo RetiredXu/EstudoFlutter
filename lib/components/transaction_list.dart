@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/transaction.dart';
 import 'package:intl/intl.dart';
+import 'dart:io';
 
 class TransactionList extends StatelessWidget {
   final List<Transaction> transactions;
@@ -21,10 +22,18 @@ class TransactionList extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 SizedBox(
-                  height: constraints.maxHeight * 0.6,
+                  height: constraints.maxHeight * 0.5,
                   child: Image.asset(
-                    'asset/images/2.png',
+                    'asset/images/Help.png',
                     fit: BoxFit.cover,
+                  ),
+                ),
+                const Text(
+                  'Precisando de ajuda? cadastre aqui',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
@@ -35,18 +44,27 @@ class TransactionList extends StatelessWidget {
             itemBuilder: (ctx, index) {
               final tr = transactions[index];
               return Card(
+                color: Colors.white,
                 elevation: 10,
                 margin: const EdgeInsets.symmetric(
                   vertical: 8,
                   horizontal: 5,
                 ),
                 child: ListTile(
-                  leading: SizedBox(
-                    child: Image.asset(
-                      'asset/images/2.png',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                  leading: tr.image != null
+                      ? SizedBox(
+                          width: 65,
+                          height: 65,
+                          child: Image.file(
+                            tr.image!,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : const SizedBox(
+                          width: 65,
+                          height: 65,
+                          child: Icon(Icons.image_not_supported),
+                        ),
                   title: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -56,10 +74,10 @@ class TransactionList extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Número de Contato: ${tr.phone.toStringAsFixed(0)}', // Convertendo para String
+                        'Número de Contato: ${_formatPhoneNumber(tr.phone.toStringAsFixed(0))}', 
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
-                      const Divider( // Adicionando a linha de divisão
+                      const Divider(
                         color: Colors.black,
                         height: 10,
                         thickness: 2,
@@ -77,5 +95,12 @@ class TransactionList extends StatelessWidget {
               );
             },
           );
+  }
+
+  String _formatPhoneNumber(String phoneNumber) {
+    return phoneNumber.replaceAllMapped(
+      RegExp(r'(\d{2})(\d{5})(\d{4})'),
+      (Match m) => '(${m[1]}) ${m[2]}-${m[3]}',
+    );
   }
 }
