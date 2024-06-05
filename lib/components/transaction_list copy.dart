@@ -47,39 +47,31 @@ class TransactionList extends StatelessWidget {
                 onTap: () {},
                 splashColor: Theme.of(context).primaryColor,
                 borderRadius: BorderRadius.circular(15),
-                child: Container(
-                  padding: const EdgeInsets.all(20),
+                child: Card(
+                  shape: BeveledRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  color: Colors.white,
+                  elevation: 10,
                   margin: const EdgeInsets.symmetric(
                     vertical: 8,
                     horizontal: 5,
                   ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    gradient: const LinearGradient(
-                      colors: [
-                        Colors.white,
-                        Colors.blue,
-                        Colors.green,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
                   child: ListTile(
-                    leading: Container(
-                      width: 65,
-                      height: 65,
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: tr.image != null
-                          ? Image.file(
+                    leading: tr.image != null
+                        ? SizedBox(
+                            width: 65,
+                            height: 65,
+                            child: Image.file(
                               tr.image!,
                               fit: BoxFit.cover,
-                            )
-                          : Icon(Icons.image_not_supported),
-                    ),
+                            ),
+                          )
+                        : const SizedBox(
+                            width: 65,
+                            height: 65,
+                            child: Icon(Icons.image_not_supported),
+                          ),
                     title: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
