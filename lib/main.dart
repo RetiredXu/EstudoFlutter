@@ -5,6 +5,7 @@ import 'package:goodhelpers/components/transaction_form.dart';
 import 'components/transaction_list.dart';
 import 'models/transaction.dart';
 import 'components/main_drawer.dart';
+import 'screens/details_screen.dart';
 import 'utils/app.routes.dart';
 
 main() => runApp(ExpensesApp());
@@ -26,14 +27,14 @@ class ExpensesApp extends StatelessWidget {
         fontFamily: 'Raleway',
         textTheme: ThemeData.light().textTheme.copyWith(
               titleLarge: const TextStyle(
-                fontSize: 20,
-                fontFamily: 'RobotoCondensed',
-                fontWeight: FontWeight.bold
-              ),
+                  fontSize: 20,
+                  fontFamily: 'RobotoCondensed',
+                  fontWeight: FontWeight.bold),
             ),
       ),
       initialRoute: AppRoutes.HOME,
       routes: {
+        AppRoutes.DETAIL: (ctx) => const DetailsScreen(),
       },
     );
   }

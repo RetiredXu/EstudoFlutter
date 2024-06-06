@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/transaction.dart';
 import 'package:intl/intl.dart';
-import 'dart:io';
+import '../utils/app.routes.dart';
 
 class TransactionList extends StatelessWidget {
   final List<Transaction> transactions;
@@ -9,42 +9,50 @@ class TransactionList extends StatelessWidget {
 
   const TransactionList(this.transactions, this.onRemove, {super.key});
 
+void _detailsScreen(BuildContext context, Transaction transaction) {
+  Navigator.of(context).pushNamed(
+    AppRoutes.DETAIL,
+    arguments: transaction,
+  );
+}
   @override
   Widget build(BuildContext context) {
     return transactions.isEmpty
-        ? LayoutBuilder(builder: (ctx, constraints) {
-            return Column(
-              children: [
-                const SizedBox(height: 20),
-                Text(
-                  'Nenhuma emergência Cadastrada!',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  height: constraints.maxHeight * 0.5,
-                  child: Image.asset(
-                    'asset/images/Help.png',
-                    fit: BoxFit.cover,
+        ? LayoutBuilder(
+            builder: (ctx, constraints) {
+              return Column(
+                children: [
+                  const SizedBox(height: 20),
+                  Text(
+                    'Nenhuma emergência cadastrada!',
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
-                ),
-                const Text(
-                  'Precisando de ajuda? cadastre aqui',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    height: constraints.maxHeight * 0.5,
+                    child: Image.asset(
+                      'assets/images/Help.png', 
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-              ],
-            );
-          })
+                  const Text(
+                    'Precisando de ajuda? Cadastre aqui',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              );
+            },
+          )
         : ListView.builder(
             itemCount: transactions.length,
             itemBuilder: (ctx, index) {
               final tr = transactions[index];
               return InkWell(
-                onTap: () {},
+                onTap: ()=> _detailsScreen(context,tr),
                 splashColor: Theme.of(context).primaryColor,
                 borderRadius: BorderRadius.circular(15),
                 child: Container(
@@ -58,31 +66,27 @@ class TransactionList extends StatelessWidget {
                     gradient: const LinearGradient(
                       colors: [
                         Colors.white,
-                        Colors.blue,
-                        Colors.green,
+                        Colors.blueAccent,
+                        Colors.white,
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                   ),
                   child: ListTile(
-                    leading: Container(
-                      width: 65,
-                      height: 65,
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: tr.image != null
-                          ? Image.file(
-                              tr.image!,
-                              fit: BoxFit.cover,
-                            )
-                          : Icon(Icons.image_not_supported),
-                    ),
                     title: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        SizedBox(
+                          width: 100,
+                          height: 100,
+                          child: tr.image != null
+                              ? Image.file(
+                                  tr.image!,
+                                  fit: BoxFit.cover,
+                                )
+                              : const Icon(Icons.image_not_supported),
+                        ),
                         Text(
                           'Nome: ${tr.name}',
                           style: Theme.of(context).textTheme.titleLarge,
