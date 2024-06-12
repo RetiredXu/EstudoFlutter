@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/app.routes.dart';
 
 class MainDrawer extends StatelessWidget {
   const MainDrawer({super.key});
@@ -31,9 +32,9 @@ class MainDrawer extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             color: Theme.of(context).colorScheme.secondary,
-            alignment: Alignment.bottomRight,
+            alignment: Alignment.bottomLeft,
             child: Text(
-              'Vamos Cozinhar?',
+              'Good Helpers',
               style: TextStyle(
                 fontWeight: FontWeight.w900,
                 fontSize: 28,
@@ -42,10 +43,10 @@ class MainDrawer extends StatelessWidget {
             ),
           ),
           _createItem(
-            Icons.restaurant,
-            'Refeições',
-            //() => Navigator.of(context).pushNamed(AppRoutes.HOME),
-            () => null,
+            Icons.monetization_on,
+            'Minhas Doações',
+            () => Navigator.of(context).pushNamed(AppRoutes.DONATION),
+            //() => null,
           ),
           _createItem(
             Icons.settings,

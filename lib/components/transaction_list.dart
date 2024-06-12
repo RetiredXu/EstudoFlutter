@@ -31,7 +31,7 @@ void _detailsScreen(BuildContext context, Transaction transaction) {
                   SizedBox(
                     height: constraints.maxHeight * 0.5,
                     child: Image.asset(
-                      'assets/images/Help.png', 
+                      'asset/images/Help.png', 
                       fit: BoxFit.cover,
                     ),
                   ),

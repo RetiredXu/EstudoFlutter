@@ -2,10 +2,13 @@ import 'dart:math';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:goodhelpers/components/transaction_form.dart';
+import 'package:goodhelpers/providers/donation_provider.dart';
+import 'package:provider/provider.dart';
 import 'components/transaction_list.dart';
 import 'models/transaction.dart';
 import 'components/main_drawer.dart';
 import 'screens/details_screen.dart';
+import 'screens/donation_screnn.dart';
 import 'utils/app.routes.dart';
 
 main() => runApp(ExpensesApp());
@@ -16,26 +19,32 @@ class ExpensesApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: const MyHomePage(),
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSwatch().copyWith(
-          primary: Colors.pink,
-          secondary: Colors.amber,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => DonationProvider()),
+      ],
+      child: MaterialApp(
+        home: const MyHomePage(),
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSwatch().copyWith(
+            primary: Colors.pink,
+            secondary: Colors.amber,
+          ),
+          scaffoldBackgroundColor: const Color.fromRGBO(255, 254, 229, 1),
+          fontFamily: 'Raleway',
+          textTheme: ThemeData.light().textTheme.copyWith(
+                titleLarge: const TextStyle(
+                    fontSize: 20,
+                    fontFamily: 'RobotoCondensed',
+                    fontWeight: FontWeight.bold),
+              ),
         ),
-        scaffoldBackgroundColor: const Color.fromRGBO(255, 254, 229, 1),
-        fontFamily: 'Raleway',
-        textTheme: ThemeData.light().textTheme.copyWith(
-              titleLarge: const TextStyle(
-                  fontSize: 20,
-                  fontFamily: 'RobotoCondensed',
-                  fontWeight: FontWeight.bold),
-            ),
+        initialRoute: AppRoutes.HOME,
+        routes: {
+          AppRoutes.DETAIL: (ctx) => const DetailsScreen(),
+          AppRoutes.DONATION: (ctx) => const DonationScreen(),
+        },
       ),
-      initialRoute: AppRoutes.HOME,
-      routes: {
-        AppRoutes.DETAIL: (ctx) => const DetailsScreen(),
-      },
     );
   }
 }
