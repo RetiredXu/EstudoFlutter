@@ -10,6 +10,8 @@ import 'components/main_drawer.dart';
 import 'screens/details_screen.dart';
 import 'screens/donation_screnn.dart';
 import 'utils/app.routes.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 main() => runApp(ExpensesApp());
 
@@ -59,9 +61,41 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final List<Transaction> _transactions = [];
   bool _showChart = false;
+  late Future<void> futureData;
 
-  _addTransaction(
-      String id,String name, double phone, DateTime date, String situation, File? image) {
+  @override
+  void initState() {
+    super.initState();
+    futureData = fetchData();
+  }
+
+  Future<void> fetchData() async {
+    final response = await http.get(Uri.parse(
+        'https://goodhelper-59c18-default-rtdb.firebaseio.com/HelpList.json'));
+    print(response.body);
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      final List<Transaction> loadedTransactions = [];
+      data.forEach((key, value) {
+        loadedTransactions.add(Transaction(
+          id: key,
+          name: value['name'],
+          phone: value['phone'],
+          date: DateTime.parse(value['date']),
+          situation: value['situation'],
+          image: value['image'] != null ? File(value['image']) : null,
+        ));
+      });
+      setState(() {
+        _transactions.addAll(loadedTransactions);
+      });
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
+  _addTransaction(String id, String name, double phone, DateTime date,
+      String situation, File? image) {
     final newTransaction = Transaction(
       id: id,
       name: name,
@@ -122,7 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
         appBar.preferredSize.height -
         MediaQuery.of(context).padding.top;
 
-    return Scaffold(
+ return Scaffold(
       appBar: appBar,
       drawer: MainDrawer(),
       body: SingleChildScrollView(
@@ -132,7 +166,18 @@ class _MyHomePageState extends State<MyHomePage> {
             if (!_showChart || !isLandscape)
               SizedBox(
                 height: availableHeight,
-                child: TransactionList(_transactions, _removeTransaction),
+                child: FutureBuilder<void>(
+                  future: futureData,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else {
+                      return TransactionList(_transactions, _removeTransaction);
+                    }
+                  },
+                ),
               ),
           ],
         ),

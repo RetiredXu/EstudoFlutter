@@ -17,7 +17,8 @@ class TransactionForm extends StatefulWidget {
 }
 
 class _TransactionFormState extends State<TransactionForm> {
-  final _url = 'https://goodhelper-59c18-default-rtdb.firebaseio.com/list.json';
+  final _url =
+      'https://goodhelper-59c18-default-rtdb.firebaseio.com/HelpList.json';
   final _nameController = TextEditingController();
   final _phonenumberController = TextEditingController();
   final _situationController = TextEditingController();
@@ -40,7 +41,7 @@ class _TransactionFormState extends State<TransactionForm> {
       final bytes = await _selectedImage!.readAsBytes();
       imageBase64 = base64Encode(bytes);
     }
-
+  
     final future = http.post(
       Uri.parse(_url),
       body: jsonEncode(

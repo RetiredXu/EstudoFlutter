@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import '../models/transaction.dart';
 import 'package:intl/intl.dart';
 import '../utils/app.routes.dart';
+import 'package:http/http.dart' as http;
 
 class TransactionList extends StatelessWidget {
   final List<Transaction> transactions;
@@ -9,12 +12,25 @@ class TransactionList extends StatelessWidget {
 
   const TransactionList(this.transactions, this.onRemove, {super.key});
 
-void _detailsScreen(BuildContext context, Transaction transaction) {
-  Navigator.of(context).pushNamed(
-    AppRoutes.DETAIL,
-    arguments: transaction,
-  );
-}
+  void _detailsScreen(BuildContext context, Transaction transaction) {
+    Navigator.of(context).pushNamed(
+      AppRoutes.DETAIL,
+      arguments: transaction,
+    );
+  }
+
+Future<String> fetchData() async {
+    final response = await http.get(Uri.parse(
+        'https://goodhelper-59c18-default-rtdb.firebaseio.com/HelpList.json'));
+    print(response.body);
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['title'];
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return transactions.isEmpty
@@ -31,7 +47,7 @@ void _detailsScreen(BuildContext context, Transaction transaction) {
                   SizedBox(
                     height: constraints.maxHeight * 0.5,
                     child: Image.asset(
-                      'asset/images/Help.png', 
+                      'asset/images/Help.png',
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -52,7 +68,7 @@ void _detailsScreen(BuildContext context, Transaction transaction) {
             itemBuilder: (ctx, index) {
               final tr = transactions[index];
               return InkWell(
-                onTap: ()=> _detailsScreen(context,tr),
+                onTap: () => _detailsScreen(context, tr),
                 splashColor: Theme.of(context).primaryColor,
                 borderRadius: BorderRadius.circular(15),
                 child: Container(
