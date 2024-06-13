@@ -1,11 +1,14 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 class TransactionForm extends StatefulWidget {
-  final void Function(String, double, DateTime, String, File?) onSubmit;
+  final void Function(String, String, double, DateTime, String, File?) onSubmit;
 
   const TransactionForm(this.onSubmit, {super.key});
 
@@ -14,30 +17,64 @@ class TransactionForm extends StatefulWidget {
 }
 
 class _TransactionFormState extends State<TransactionForm> {
+  final _url = 'https://goodhelper-59c18-default-rtdb.firebaseio.com/list.json';
   final _nameController = TextEditingController();
   final _phonenumberController = TextEditingController();
   final _situationController = TextEditingController();
   DateTime? _selectedDate = DateTime.now();
   File? _selectedImage;
-
   final _phoneNumberFormatter = MaskTextInputFormatter(mask: '(##) #####-####');
 
-  void _submitForm() {
+  void _submitForm() async {
     final name = _nameController.text;
-    final phone = _phonenumberController.text;
-    final situacao = _situationController.text;
+    final phone = _phoneNumberFormatter.getMaskedText();
+    final situation = _situationController.text;
+    final dateTime = _selectedDate?.toIso8601String();
 
     if (name.isEmpty || phone.isEmpty || _selectedDate == null) {
       return;
     }
 
-    widget.onSubmit(
-      name,
-      double.tryParse(phone.replaceAll(RegExp(r'\D'), '')) ?? 0,
-      _selectedDate!,
-      situacao,
-      _selectedImage,
+    String? imageBase64;
+    if (_selectedImage != null) {
+      final bytes = await _selectedImage!.readAsBytes();
+      imageBase64 = base64Encode(bytes);
+    }
+
+    final future = http.post(
+      Uri.parse(_url),
+      body: jsonEncode(
+        {
+          "name": name,
+          "phone": phone,
+          "situation": situation,
+          "dateTime": dateTime,
+          "img": imageBase64,
+        },
+      ),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     );
+    future.then(
+      (response) {
+        final id = jsonDecode(response.body)['name'];
+        widget.onSubmit(
+            id,
+            name,
+            double.tryParse(phone.replaceAll(RegExp(r'\D'), '')) ?? 0,
+            _selectedDate!,
+            situation,
+            _selectedImage);
+      },
+    );
+  }
+
+  Future<void> loadList() async {
+    final response = await http.get(
+      Uri.parse(_url),
+    );
+    print(jsonDecode(response.body));
   }
 
   void _showDatePicker() {
@@ -74,15 +111,15 @@ class _TransactionFormState extends State<TransactionForm> {
   @override
   Widget build(BuildContext context) {
     return Card(
-       color: Colors.white,
+      color: Colors.white,
       elevation: 10,
       child: Padding(
         padding: EdgeInsets.only(
-            top: 10,
-            right: 10,
-            left: 10,
-            bottom: 10 + MediaQuery.of(context).viewInsets.bottom,
-          ),
+          top: 10,
+          right: 10,
+          left: 10,
+          bottom: 10 + MediaQuery.of(context).viewInsets.bottom,
+        ),
         child: SingleChildScrollView(
           child: Column(
             children: [

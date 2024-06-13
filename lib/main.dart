@@ -61,9 +61,9 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _showChart = false;
 
   _addTransaction(
-      String name, double phone, DateTime date, String situation, File? image) {
+      String id,String name, double phone, DateTime date, String situation, File? image) {
     final newTransaction = Transaction(
-      id: Random().nextDouble().toString(),
+      id: id,
       name: name,
       phone: phone,
       date: date,
