@@ -33,6 +33,8 @@ class _TransactionFormState extends State<TransactionForm> {
     final dateTime = _selectedDate?.toIso8601String();
 
     if (name.isEmpty || phone.isEmpty || _selectedDate == null) {
+      _showErroMsg('Campos obrigatórios não preenchidos',
+          'Por favor, preencha todos os campos obrigatórios: Nome, Telefone, Situação.');
       return;
     }
 
@@ -95,6 +97,21 @@ class _TransactionFormState extends State<TransactionForm> {
     setState(() {
       _selectedImage = File(pickedImage.path);
     });
+  }
+
+  _showErroMsg(String title, String msg) {
+    showDialog(
+        context: context,
+        builder: ((ctx) => AlertDialog(
+              title: Text(title),
+              content: Text(msg),
+              actions: [
+                TextButton(
+                  onPressed: Navigator.of(ctx).pop,
+                  child: const Text('OK'),
+                )
+              ],
+            )));
   }
 
   @override

@@ -19,18 +19,6 @@ class TransactionList extends StatelessWidget {
     );
   }
 
-Future<String> fetchData() async {
-    final response = await http.get(Uri.parse(
-        'https://goodhelper-59c18-default-rtdb.firebaseio.com/HelpList.json'));
-    print(response.body);
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['title'];
-    } else {
-      throw Exception('Failed to load data');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return transactions.isEmpty
@@ -67,64 +55,66 @@ Future<String> fetchData() async {
             itemCount: transactions.length,
             itemBuilder: (ctx, index) {
               final tr = transactions[index];
-              return InkWell(
-                onTap: () => _detailsScreen(context, tr),
-                splashColor: Theme.of(context).primaryColor,
-                borderRadius: BorderRadius.circular(15),
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  margin: const EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    gradient: const LinearGradient(
-                      colors: [
-                        Colors.white,
-                        Colors.blueAccent,
-                        Colors.white,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: ListTile(
-                    title: Column(
+              return Card(
+                elevation: 4,
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 5),
+                child: InkWell(
+                  onTap: () => _detailsScreen(context, tr),
+                  splashColor: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.circular(15),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
-                          width: 100,
-                          height: 100,
+                          width: 80,
+                          height: 80,
                           child: tr.image != null
                               ? Image.file(
                                   tr.image!,
                                   fit: BoxFit.cover,
                                 )
-                              : const Icon(Icons.image_not_supported),
+                              : const Icon(Icons.image_not_supported, size: 40),
                         ),
-                        Text(
-                          'Nome: ${tr.name}',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Número de Contato: ${_formatPhoneNumber(tr.phone)}',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const Divider(
-                          color: Colors.black,
-                          height: 10,
-                          thickness: 2,
-                        ),
-                        Text(
-                          'Situação: ${tr.situation}',
-                          style: Theme.of(context).textTheme.titleLarge,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                tr.name,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Contato: ${_formatPhoneNumber(tr.phone)}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const Divider(color: Colors.grey),
+                              Text(
+                                'Situação: ${tr.situation}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                DateFormat('dd/MM/yyyy HH:mm').format(tr.date),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
-                    ),
-                    subtitle: Text(
-                      DateFormat('d MMM y').format(tr.date),
                     ),
                   ),
                 ),
