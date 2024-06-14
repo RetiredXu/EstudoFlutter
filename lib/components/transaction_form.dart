@@ -41,7 +41,7 @@ class _TransactionFormState extends State<TransactionForm> {
       final bytes = await _selectedImage!.readAsBytes();
       imageBase64 = base64Encode(bytes);
     }
-  
+
     final future = http.post(
       Uri.parse(_url),
       body: jsonEncode(
@@ -61,21 +61,9 @@ class _TransactionFormState extends State<TransactionForm> {
       (response) {
         final id = jsonDecode(response.body)['name'];
         widget.onSubmit(
-            id,
-            name,
-            phone,
-            _selectedDate!,
-            situation,
-            _selectedImage);
+            id, name, phone, _selectedDate!, situation, _selectedImage);
       },
     );
-  }
-
-  Future<void> loadList() async {
-    final response = await http.get(
-      Uri.parse(_url),
-    );
-    print(jsonDecode(response.body));
   }
 
   void _showDatePicker() {

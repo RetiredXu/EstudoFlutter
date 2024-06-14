@@ -12,6 +12,10 @@ import 'screens/donation_screnn.dart';
 import 'utils/app.routes.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
 main() => runApp(ExpensesApp());
 
@@ -70,32 +74,40 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> fetchData() async {
-    final response = await http.get(
-      Uri.parse(
-          'https://goodhelper-59c18-default-rtdb.firebaseio.com/HelpList.json'),
-    );
-    //print(response.body);
+    final response = await http.get(Uri.parse(
+        'https://goodhelper-59c18-default-rtdb.firebaseio.com/HelpList.json'));
     final data = jsonDecode(response.body) as Map<String, dynamic>;
-    final List<Transaction> loadedTransactions = [];
-    data.forEach(
-      (key, value) {
-        loadedTransactions.add(
-          Transaction(
-            id: key,
-            name: value['name'],
-            phone: value['phone'],
-            date: DateTime.parse(value['dateTime']),
-            situation: value['situation'],
-            image: value['img'] != null ? File(value['img']) : null,
-          ),
-        );
-      },
-    );
-    setState(
-      () {
-        _transactions.addAll(loadedTransactions);
-      },
-    );
+    List<Transaction> loadedTransactions = [];
+
+    for (var key in data.keys) {
+      var value = data[key];
+      File? imageFile;
+
+      if (value['img'] != null) {
+        Uint8List bytes = base64Decode(value['img']);
+        Directory tempDir = await getTemporaryDirectory();
+        String tempPath = tempDir.path;
+        String filePath = '$tempPath/${key}_image.jpg';
+        await File(filePath).writeAsBytes(bytes);
+        imageFile = File(filePath);
+      }
+
+      loadedTransactions.add(
+        Transaction(
+          id: key,
+          name: value['name'],
+          phone: value['phone'],
+          date: DateTime.parse(value['dateTime']),
+          situation: value['situation'],
+          image: imageFile,
+        ),
+      );
+      print(imageFile);
+    }
+
+    setState(() {
+      _transactions.addAll(loadedTransactions);
+    });
   }
 
   _addTransaction(String id, String name, String phone, DateTime date,
