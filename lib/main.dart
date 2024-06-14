@@ -77,19 +77,25 @@ class _MyHomePageState extends State<MyHomePage> {
     //print(response.body);
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     final List<Transaction> loadedTransactions = [];
-    data.forEach((key, value) {
-      loadedTransactions.add(Transaction(
-        id: key,
-        name: value['name'],
-        phone: value['phone'],
-        date: DateTime.parse(value['dateTime']),
-        situation: value['situation'],
-        image: value['img'] != null ? File(value['img']) : null,
-      ));
-    });
-    setState(() {
-      _transactions.addAll(loadedTransactions);
-    });
+    data.forEach(
+      (key, value) {
+        loadedTransactions.add(
+          Transaction(
+            id: key,
+            name: value['name'],
+            phone: value['phone'],
+            date: DateTime.parse(value['dateTime']),
+            situation: value['situation'],
+            image: value['img'] != null ? File(value['img']) : null,
+          ),
+        );
+      },
+    );
+    setState(
+      () {
+        _transactions.addAll(loadedTransactions);
+      },
+    );
   }
 
   _addTransaction(String id, String name, String phone, DateTime date,
@@ -103,17 +109,21 @@ class _MyHomePageState extends State<MyHomePage> {
       image: image,
     );
 
-    setState(() {
-      _transactions.add(newTransaction);
-    });
+    setState(
+      () {
+        _transactions.add(newTransaction);
+      },
+    );
 
     Navigator.of(context).pop();
   }
 
   _removeTransaction(String id) {
-    setState(() {
-      _transactions.removeWhere((tr) => tr.id == id);
-    });
+    setState(
+      () {
+        _transactions.removeWhere((tr) => tr.id == id);
+      },
+    );
   }
 
   _openTransactionFormModal(BuildContext context) {
