@@ -8,7 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 
 class TransactionForm extends StatefulWidget {
-  final void Function(String, String, double, DateTime, String, File?) onSubmit;
+  final void Function(String, String, String, DateTime, String, File?) onSubmit;
 
   const TransactionForm(this.onSubmit, {super.key});
 
@@ -63,7 +63,7 @@ class _TransactionFormState extends State<TransactionForm> {
         widget.onSubmit(
             id,
             name,
-            double.tryParse(phone.replaceAll(RegExp(r'\D'), '')) ?? 0,
+            phone,
             _selectedDate!,
             situation,
             _selectedImage);

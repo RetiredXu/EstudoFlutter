@@ -70,31 +70,29 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> fetchData() async {
-    final response = await http.get(Uri.parse(
-        'https://goodhelper-59c18-default-rtdb.firebaseio.com/HelpList.json'));
-    print(response.body);
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body) as Map<String, dynamic>;
-      final List<Transaction> loadedTransactions = [];
-      data.forEach((key, value) {
-        loadedTransactions.add(Transaction(
-          id: key,
-          name: value['name'],
-          phone: value['phone'],
-          date: DateTime.parse(value['date']),
-          situation: value['situation'],
-          image: value['image'] != null ? File(value['image']) : null,
-        ));
-      });
-      setState(() {
-        _transactions.addAll(loadedTransactions);
-      });
-    } else {
-      throw Exception('Failed to load data');
-    }
+    final response = await http.get(
+      Uri.parse(
+          'https://goodhelper-59c18-default-rtdb.firebaseio.com/HelpList.json'),
+    );
+    //print(response.body);
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final List<Transaction> loadedTransactions = [];
+    data.forEach((key, value) {
+      loadedTransactions.add(Transaction(
+        id: key,
+        name: value['name'],
+        phone: value['phone'],
+        date: DateTime.parse(value['dateTime']),
+        situation: value['situation'],
+        image: value['img'] != null ? File(value['img']) : null,
+      ));
+    });
+    setState(() {
+      _transactions.addAll(loadedTransactions);
+    });
   }
 
-  _addTransaction(String id, String name, double phone, DateTime date,
+  _addTransaction(String id, String name, String phone, DateTime date,
       String situation, File? image) {
     final newTransaction = Transaction(
       id: id,
@@ -156,9 +154,9 @@ class _MyHomePageState extends State<MyHomePage> {
         appBar.preferredSize.height -
         MediaQuery.of(context).padding.top;
 
- return Scaffold(
+    return Scaffold(
       appBar: appBar,
-      drawer: MainDrawer(),
+      drawer: const MainDrawer(),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -3,7 +3,7 @@ import 'dart:io';
 class Transaction {
   final String id;
   final String name;
-  final double phone;
+  final String phone;
   final DateTime date;
   final String situation;
   final File? image;

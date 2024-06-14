@@ -65,7 +65,7 @@ class DetailsScreen extends StatelessWidget {
                       ),
                       Text(
                         _formatPhoneNumber(
-                            transaction.phone.toStringAsFixed(0)),
+                            transaction.phone),
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 16),

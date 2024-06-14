@@ -109,7 +109,7 @@ Future<String> fetchData() async {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Número de Contato: ${_formatPhoneNumber(tr.phone.toStringAsFixed(0))}',
+                          'Número de Contato: ${_formatPhoneNumber(tr.phone)}',
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         const Divider(
