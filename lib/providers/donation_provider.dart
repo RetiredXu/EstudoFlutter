@@ -10,4 +10,6 @@ class DonationProvider with ChangeNotifier {
     _donations.add(donation);
     notifyListeners();
   }
+
+  void setDonations(List<Donation> list) {}
 }

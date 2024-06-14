@@ -1,9 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import '../models/transaction.dart';
-import '../models/donation.dart';
-import '../providers/donation_provider.dart';
+import 'package:http/http.dart' as http;
 
 class DetailsScreen extends StatelessWidget {
   const DetailsScreen({super.key});
@@ -64,8 +63,7 @@ class DetailsScreen extends StatelessWidget {
                             .copyWith(color: Colors.grey[600]),
                       ),
                       Text(
-                        _formatPhoneNumber(
-                            transaction.phone),
+                        _formatPhoneNumber(transaction.phone),
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 16),
@@ -124,7 +122,7 @@ class DetailsScreen extends StatelessWidget {
   }
 
   void _showDonationDialog(BuildContext context, String recipientName) {
-    final TextEditingController _donationController = TextEditingController();
+    final TextEditingController donationController = TextEditingController();
 
     showDialog(
       context: context,
@@ -132,7 +130,7 @@ class DetailsScreen extends StatelessWidget {
         return AlertDialog(
           title: const Text('Doação'),
           content: TextField(
-            controller: _donationController,
+            controller: donationController,
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
               labelText: 'Valor da Doação',
@@ -147,14 +145,29 @@ class DetailsScreen extends StatelessWidget {
               child: const Text('Cancelar'),
             ),
             ElevatedButton(
-              onPressed: () {
-                final donationAmount = double.tryParse(_donationController.text);
+              onPressed: () async {
+                final donationAmount = double.tryParse(donationController.text);
                 if (donationAmount != null) {
-                  Provider.of<DonationProvider>(context, listen: false).addDonation(
-                    Donation(recipientName, donationAmount),
+                  await _sendDonationToFirebase(recipientName, donationAmount);
+                  Navigator.of(context).pop(); // Close the dialog
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Sucesso'),
+                      content: const Text('Doação realizada com sucesso!'),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context)
+                                .pop(); // Close the success dialog
+                            // Navigator.of(context).pushNamed(
+                            //     '/donations'); // Navigate to donations screen
+                          },
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
                   );
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pushNamed('/donations');
                 }
               },
               child: const Text('Doar'),
@@ -163,6 +176,37 @@ class DetailsScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> _sendDonationToFirebase(
+      String recipientName, double donationAmount) async {
+    const url =
+        'https://goodhelper-59c18-default-rtdb.firebaseio.com/Donations.json';
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: jsonEncode({
+          'recipientName': recipientName,
+          'donationAmount': donationAmount,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final id = jsonDecode(response.body)['name'];
+        print('Doação enviada com sucesso! ID: $id');
+        // Here you can handle success, maybe update UI or show a success message
+      } else {
+        throw Exception('Falha ao enviar a doação');
+      }
+    } catch (e) {
+      print('Erro ao enviar doação: $e');
+      // Handle error, show error message, etc.
+      throw Exception('Falha ao enviar a doação');
+    }
   }
 
   String _formatPhoneNumber(String phoneNumber) {

@@ -1,13 +1,14 @@
+import 'dart:io';
+
 class Donation {
-  final String recipientName;
+  final String id;
+  final String name;
   final double amount;
 
-  Donation(this.recipientName, this.amount);
 
-  Map<String, dynamic> toMap() {
-    return {
-      'recipientName': recipientName,
-      'amount': amount,
-    };
-  }
+  Donation({
+    required this.id,
+    required this.name,
+    required this.amount,
+  });
 }
