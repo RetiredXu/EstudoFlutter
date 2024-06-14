@@ -19,6 +19,70 @@ class TransactionList extends StatelessWidget {
     );
   }
 
+  void _deleteTransaction(BuildContext context, Transaction transaction) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar Exclusão'),
+        content: Text(
+            'Tem certeza que deseja excluir a transação ${transaction.name}?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Fechar o AlertDialog
+            },
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop(); // Fechar o AlertDialog
+
+              try {
+                onRemove(transaction.id);
+
+                // Mostrar um AlertDialog para indicar sucesso
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Transação Removida'),
+                    content: Text(
+                        'Transação ${transaction.name} removida com sucesso.'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Fechar o AlertDialog
+                        },
+                        child: Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+              } catch (error) {
+                // Mostrar um AlertDialog para indicar erro
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Erro ao Remover Transação'),
+                    content: Text('Erro ao remover transação: $error'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Fechar o AlertDialog
+                        },
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            },
+            child: const Text('Confirmar'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return transactions.isEmpty
@@ -113,6 +177,11 @@ class TransactionList extends StatelessWidget {
                               ),
                             ],
                           ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () => _deleteTransaction(context, tr),
+                          color: Theme.of(context).errorColor,
                         ),
                       ],
                     ),

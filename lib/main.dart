@@ -73,42 +73,67 @@ class _MyHomePageState extends State<MyHomePage> {
     futureData = fetchData();
   }
 
-  Future<void> fetchData() async {
-    final response = await http.get(Uri.parse(
-        'https://goodhelper-59c18-default-rtdb.firebaseio.com/HelpList.json'));
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
-    List<Transaction> loadedTransactions = [];
+ Future<void> fetchData() async {
+  const url = 'https://goodhelper-59c18-default-rtdb.firebaseio.com/HelpList.json';
 
-    for (var key in data.keys) {
-      var value = data[key];
-      File? imageFile;
+  try {
+    final response = await http.get(Uri.parse(url));
+    
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as Map<String, dynamic>?;
 
-      if (value['img'] != null) {
-        Uint8List bytes = base64Decode(value['img']);
-        Directory tempDir = await getTemporaryDirectory();
-        String tempPath = tempDir.path;
-        String filePath = '$tempPath/${key}_image.jpg';
-        await File(filePath).writeAsBytes(bytes);
-        imageFile = File(filePath);
+      if (data == null) {
+        print('Não há dados disponíveis');
+        return;
       }
 
-      loadedTransactions.add(
-        Transaction(
-          id: key,
-          name: value['name'],
-          phone: value['phone'],
-          date: DateTime.parse(value['dateTime']),
-          situation: value['situation'],
-          image: imageFile,
-        ),
-      );
-      print(imageFile);
-    }
+      List<Transaction> loadedTransactions = [];
 
-    setState(() {
-      _transactions.addAll(loadedTransactions);
-    });
+      for (var key in data.keys) {
+        var value = data[key];
+        File? imageFile;
+
+        if (value['img'] != null) {
+          Uint8List bytes = base64Decode(value['img']);
+          Directory tempDir = await getTemporaryDirectory();
+          String tempPath = tempDir.path;
+          String filePath = '$tempPath/${key}_image.jpg';
+          await File(filePath).writeAsBytes(bytes);
+          imageFile = File(filePath);
+        }
+
+        loadedTransactions.add(
+          Transaction(
+            id: key,
+            name: value['name'],
+            phone: value['phone'],
+            date: DateTime.parse(value['dateTime']),
+            situation: value['situation'],
+            image: imageFile,
+          ),
+        );
+        print(imageFile);
+      }
+
+      setState(() {
+        _transactions.addAll(loadedTransactions);
+      });
+
+    } else {
+      throw 'Erro ao carregar transações: ${response.statusCode}';
+    }
+  } catch (error) {
+    // Lidar com erros de requisição HTTP
+    print('Erro ao carregar transações: $error');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Erro ao carregar transações: $error'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
+}
+
 
   _addTransaction(String id, String name, String phone, DateTime date,
       String situation, File? image) {
@@ -130,12 +155,29 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.of(context).pop();
   }
 
-  _removeTransaction(String id) {
-    setState(
-      () {
-        _transactions.removeWhere((tr) => tr.id == id);
-      },
-    );
+  _removeTransaction(String id) async {
+    final url =
+        'https://goodhelper-59c18-default-rtdb.firebaseio.com/HelpList/$id.json';
+
+    try {
+      final response = await http.delete(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _transactions.removeWhere((tr) => tr.id == id);
+        });
+      } else {
+        throw 'Erro ao excluir transação';
+      }
+    } catch (error) {
+      // Lidar com erros de solicitação
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao remover transação: $error'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   _openTransactionFormModal(BuildContext context) {

@@ -160,8 +160,8 @@ class DetailsScreen extends StatelessWidget {
                           onPressed: () {
                             Navigator.of(context)
                                 .pop(); // Close the success dialog
-                            // Navigator.of(context).pushNamed(
-                            //     '/donations'); // Navigate to donations screen
+                            Navigator.of(context).pushNamed(
+                                '/donations'); // Navigate to donations screen
                           },
                           child: const Text('OK'),
                         ),

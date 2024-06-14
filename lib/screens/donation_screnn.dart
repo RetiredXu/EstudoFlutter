@@ -13,7 +13,6 @@ class DonationScreen extends StatefulWidget {
 }
 
 class _DonationScreenState extends State<DonationScreen> {
-  
   Future<List<Donation>> fetchData() async {
     final response = await http.get(
       Uri.parse(
@@ -22,6 +21,11 @@ class _DonationScreenState extends State<DonationScreen> {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
+
+      if (data.isEmpty) {
+        print('Não há dados disponíveis');
+        return []; // Retorna uma lista vazia se não houver dados
+      }
       List<Donation> loadedDonations = [];
 
       data.forEach((key, value) {
@@ -36,7 +40,7 @@ class _DonationScreenState extends State<DonationScreen> {
 
       return loadedDonations;
     } else {
-      throw Exception('Failed to load donations');
+      throw Exception('Failed to load donations: ${response.statusCode}');
     }
   }
 
@@ -54,13 +58,7 @@ class _DonationScreenState extends State<DonationScreen> {
         child: FutureBuilder<List<Donation>>(
           future: fetchData(),
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(
-                child: Text('Ocorreu um erro: ${snapshot.error}'),
-              );
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return const Center(
                 child: Text(
                   'Você ainda não fez nenhuma doação.',
